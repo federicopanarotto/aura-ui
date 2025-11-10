@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import AuthUserGuard from "./guards/AuthUserGuard";
 import HomePage from "../pages/Home/HomePage";
+import Layout from "../shared/ui/layout/Layout";
 
 function AppRouting() {
   return (
@@ -9,10 +10,11 @@ function AppRouting() {
         <Route path="/login" element={<>Login Page</>} />
 
         <Route element={<AuthUserGuard />}>
-          <Route path="/*" element={<Navigate to="/" />} />
-          <Route index path="/" element={<Navigate to="/home" />} />
-
-          <Route path="/home" element={<HomePage />} />
+          <Route element={<Layout />}>
+            <Route path="/*" element={<Navigate to="/" />} />
+            <Route index path="/" element={<Navigate to="/home" />} />
+            <Route path="/home" element={<HomePage />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
