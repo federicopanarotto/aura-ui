@@ -3,6 +3,7 @@ import BasePage from "../../shared/ui/page/BasePage";
 import ThemeButton from "../../shared/ui/button/ThemeButton";
 import { useState } from "react";
 import { useMe } from "../../shared/api/user/useMe";
+import LogoutButton from "../../shared/ui/button/LogoutButton";
 
 function HomePage() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -32,6 +33,7 @@ function HomePage() {
       <pre>
         {JSON.stringify(me, null, 2)}
       </pre>
+      <LogoutButton />
     </BasePage>
   );
 }
