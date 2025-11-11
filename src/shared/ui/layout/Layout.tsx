@@ -1,6 +1,7 @@
 import { Box, LinearProgress } from "@mui/material";
 import { useLoadingStorage } from "../../../storage/loadingStorage";
 import { Outlet } from "react-router";
+import NavMenu from "./NavMenu";
 
 function Layout() {
   const { isLoading } = useLoadingStorage();
@@ -8,7 +9,7 @@ function Layout() {
   return (
     <Box
       sx={{
-        height: "calc(100dvh - 3px)",
+        height: "calc(100dvh - 900px)",
         minHeight: 600,
         position: "relative",
       }}
@@ -21,6 +22,7 @@ function Layout() {
         {isLoading && <LinearProgress />}
       </Box>
       <Outlet />
+      <NavMenu />
     </Box>
   );
 }

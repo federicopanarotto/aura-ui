@@ -4,7 +4,7 @@ import ThemeButton from "../../shared/ui/button/ThemeButton";
 import UserInfoCardDebug from "../../shared/ui/debug/UserInfoCardDebug";
 import LoadingStateButtonsDebug from "../../shared/ui/debug/LoadingStateButtonsDebug";
 
-function HomePage() {
+function DashboardPage() {
   return (
     <BasePage sx={{ p: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -22,4 +22,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default DashboardPage;

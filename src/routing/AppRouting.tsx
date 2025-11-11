@@ -1,8 +1,12 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import AuthUserGuard from "./guards/AuthUserGuard";
-import HomePage from "../pages/Home/HomePage";
+import DashboardPage from "../pages/Dashboard/DashboardPage";
 import Layout from "../shared/ui/layout/Layout";
 import LoginPage from "../pages/Login/LoginPage";
+import DiaryPage from "../pages/Diary/DiaryPage";
+import RegistrationPage from "../pages/Registration/RegistrationPage";
+import ReviewPage from "../pages/Review/ReviewPage";
+import ProfilePage from "../pages/Profile/ProfilePage";
 
 function AppRouting() {
   return (
@@ -14,7 +18,11 @@ function AppRouting() {
           <Route element={<Layout />}>
             <Route path="/*" element={<Navigate to="/" />} />
             <Route index path="/" element={<Navigate to="/home" />} />
-            <Route path="/home" element={<HomePage />} />
+            <Route path="/home" element={<DashboardPage />} />
+            <Route path="/diary" element={<DiaryPage />} />
+            <Route path="/rec" element={<RegistrationPage />} />
+            <Route path="/review" element={<ReviewPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Route>
       </Routes>
