@@ -4,21 +4,11 @@ import { FiberManualRecord, Stop } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import BasePage from "../../shared/ui/page/BasePage";
 
-// Styled Components
-const RecorderContainer = styled(Paper)(({ theme }) => ({
-  background: '#000000',
-  borderRadius: 24,
-  padding: theme.spacing(4),
-  maxWidth: 800,
-  margin: '0 auto',
-  boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
-}));
-
 const WaveformCanvas = styled('canvas')({
   width: '100%',
   height: '200px',
   borderRadius: 8,
-  backgroundColor: '#1a1a1a',
+  // backgroundColor: '#BA3131',
 });
 
 const Timer = styled(Typography)({
@@ -131,11 +121,11 @@ const RecorderPage: FC = () => {
       }
 
       // Clear canvas
-      ctx.fillStyle = '#1a1a1a';
+      ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Draw center line
-      ctx.strokeStyle = '#333333';
+      // ctx.strokeStyle = '#333333';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, canvas.height / 2);
@@ -144,13 +134,13 @@ const RecorderPage: FC = () => {
 
       // Draw waveform bars
       const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#ff3b30');
-      gradient.addColorStop(0.5, '#ff6b60');
-      gradient.addColorStop(1, '#ff3b30');
+      gradient.addColorStop(0, '#90caf9');
+      // gradient.addColorStop(0.5, '#ff6b60');
+      // gradient.addColorStop(1, '#ff3b30');
 
       waveformDataRef.current.forEach((height, index) => {
         const x = canvas.width - (waveformDataRef.current.length - index) * totalBarWidth;
-        const barHeight = Math.max(4, height);
+        const barHeight = Math.max(2, height);
         
         // Draw mirrored bars (top and bottom)
         ctx.fillStyle = gradient;
@@ -171,18 +161,18 @@ const RecorderPage: FC = () => {
           barHeight / 2
         );
 
-        // Add glow effect for recent bars
-        if (index > waveformDataRef.current.length - 10) {
-          ctx.shadowBlur = 10;
-          ctx.shadowColor = '#ff3b30';
-          ctx.fillRect(
-            x, 
-            canvas.height / 2 - barHeight / 2, 
-            barWidth, 
-            barHeight
-          );
-          ctx.shadowBlur = 0;
-        }
+        // // Add glow effect for recent bars
+        // if (index > waveformDataRef.current.length - 10) {
+        //   ctx.shadowBlur = 10;
+        //   // ctx.shadowColor = '#ff3b30';
+        //   ctx.fillRect(
+        //     x, 
+        //     canvas.height / 2 - barHeight / 2, 
+        //     barWidth, 
+        //     barHeight
+        //   );
+        //   ctx.shadowBlur = 0;
+        // }
       });
     };
 
@@ -301,7 +291,7 @@ const RecorderPage: FC = () => {
         </Typography>
       </Box>
 
-      <RecorderContainer elevation={0}>
+      <Box>
         <Box sx={{ textAlign: 'center' }}>
           {/* Timer */}
           <Timer>
@@ -311,26 +301,6 @@ const RecorderPage: FC = () => {
           {/* Waveform Visualization */}
           <Box sx={{ mb: 3, position: 'relative' }}>
             <WaveformCanvas ref={canvasRef} />
-            {isRecording && (
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: '50%',
-                  right: 20,
-                  transform: 'translateY(-50%)',
-                  width: 12,
-                  height: 12,
-                  backgroundColor: '#ff3b30',
-                  borderRadius: '50%',
-                  animation: 'pulse 1.5s ease-in-out infinite',
-                  '@keyframes pulse': {
-                    '0%': { opacity: 1, transform: 'translateY(-50%) scale(1)' },
-                    '50%': { opacity: 0.5, transform: 'translateY(-50%) scale(1.2)' },
-                    '100%': { opacity: 1, transform: 'translateY(-50%) scale(1)' },
-                  },
-                }}
-              />
-            )}
           </Box>
 
           {/* Control Button */}
@@ -367,7 +337,9 @@ const RecorderPage: FC = () => {
             </Box>
           )}
         </Box>
-      </RecorderContainer>
+
+      </Box>
+        
     </BasePage>
   );
 };
