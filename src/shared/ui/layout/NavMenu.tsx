@@ -13,7 +13,8 @@ function NavMenu() {
         gap: 1,
         px: 3,
         py: 1,
-        borderRadius: 4,
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
         backgroundColor: (theme) => theme.palette.background.paper,
       }}
     >

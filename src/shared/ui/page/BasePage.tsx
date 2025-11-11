@@ -19,7 +19,7 @@ function BasePage({ children, isLoading = false, sx }: BasePageProps) {
     <Box
       sx={{
         height: "100%",
-        minHeight: 600,
+        minHeight: 500,
         position: "relative",
         ...sx,
       }}
