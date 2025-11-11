@@ -17,7 +17,7 @@ function AppRouting() {
         <Route element={<AuthUserGuard />}>
           <Route element={<Layout />}>
             <Route path="/*" element={<Navigate to="/" />} />
-            <Route index path="/" element={<Navigate to="/home" />} />
+            <Route index path="/" element={<Navigate to="/dashboard" />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/diary" element={<DiaryPage />} />
             <Route path="/recorder" element={<RecorderPage />} />

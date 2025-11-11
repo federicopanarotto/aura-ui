@@ -23,8 +23,8 @@ export const menuItems: MenuItem[] = [
     icon: <LibraryBooksOutlinedIcon sx={{ fontSize: 32}} />,
   },
   {
-    label: "Registration",
-    path: "/registration",
+    label: "Recorder",
+    path: "/recorder",
     icon: <RadioButtonCheckedIcon sx={{ fontSize: 48 }} />,
   },
   {
