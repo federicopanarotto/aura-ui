@@ -1,12 +1,12 @@
 import { Typography } from "@mui/material";
 import BasePage from "../../shared/ui/page/BasePage";
 
-function RegistrationPage() {
+function RecorderPage() {
   return (
     <BasePage sx={{ p: 2 }}>
-      <Typography variant="h3">Registration</Typography>
+      <Typography variant="h3">Recorder</Typography>
     </BasePage>
   );
 }
 
-export default RegistrationPage;
+export default RecorderPage;

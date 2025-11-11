@@ -4,9 +4,9 @@ import DashboardPage from "../pages/Dashboard/DashboardPage";
 import Layout from "../shared/ui/layout/Layout";
 import LoginPage from "../pages/Login/LoginPage";
 import DiaryPage from "../pages/Diary/DiaryPage";
-import RegistrationPage from "../pages/Registration/RegistrationPage";
 import ReviewPage from "../pages/Review/ReviewPage";
 import ProfilePage from "../pages/Profile/ProfilePage";
+import RecorderPage from "../pages/Recorder/RecorderPage";
 
 function AppRouting() {
   return (
@@ -20,7 +20,7 @@ function AppRouting() {
             <Route index path="/" element={<Navigate to="/home" />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/diary" element={<DiaryPage />} />
-            <Route path="/registration" element={<RegistrationPage />} />
+            <Route path="/recorder" element={<RecorderPage />} />
             <Route path="/review" element={<ReviewPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
