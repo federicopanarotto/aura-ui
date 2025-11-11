@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect, FC } from "react";
+import { useState, useRef, useCallback, useEffect, type FC } from "react";
 import { Typography, Box, IconButton, Paper } from "@mui/material";
 import { FiberManualRecord, Stop } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
@@ -71,7 +71,7 @@ const RecorderPage: FC = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
-  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timerIntervalRef = useRef<number | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const waveformDataRef = useRef<number[]>([]);

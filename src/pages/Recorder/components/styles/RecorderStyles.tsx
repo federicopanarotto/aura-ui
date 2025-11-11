@@ -1,5 +1,5 @@
 import { styled } from "@mui/material/styles";
-import { Paper, Typography, IconButton } from "@mui/material";
+import { Paper, Typography, IconButton, Box } from "@mui/material";
 
 export const RecorderContainer = styled(Paper)(({ theme }) => ({
   background: '#000000',
