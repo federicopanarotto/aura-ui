@@ -20,7 +20,7 @@ function AppRouting() {
             <Route index path="/" element={<Navigate to="/home" />} />
             <Route path="/home" element={<DashboardPage />} />
             <Route path="/diary" element={<DiaryPage />} />
-            <Route path="/rec" element={<RegistrationPage />} />
+            <Route path="/registration" element={<RegistrationPage />} />
             <Route path="/review" element={<ReviewPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>

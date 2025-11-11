@@ -1,50 +1,41 @@
-import { Box, Card, Menu, MenuItem } from "@mui/material";
-import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
-import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
-import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
-import InsertChartOutlinedOutlinedIcon from '@mui/icons-material/InsertChartOutlinedOutlined';
-import AccountBoxOutlinedIcon from '@mui/icons-material/AccountBoxOutlined';
+import { Card, IconButton, Tooltip } from "@mui/material";
+import { menuItems } from "./NavItems";
+import { NavLink } from "react-router";
 
 function NavMenu() {
   return (
-    <Box
+    <Card
+      elevation={2}
       sx={{
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        padding: 2,
+        gap: 1,
+        px: 3,
+        py: 1,
+        borderRadius: 4,
+        backgroundColor: (theme) => theme.palette.background.paper,
       }}
     >
-      <Card>
-        <Menu
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "center",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          open={true}
-        >
-          <MenuItem>
-            <GridViewOutlinedIcon />
-          </MenuItem>
-          <MenuItem>
-            <LibraryBooksOutlinedIcon />
-          </MenuItem>
-          <MenuItem>
-            <CircleOutlinedIcon sx={{ fontSize: 40 }} />
-          </MenuItem>
-          <MenuItem>
-            <InsertChartOutlinedOutlinedIcon />
-          </MenuItem>
-          <MenuItem>
-            <AccountBoxOutlinedIcon />
-          </MenuItem>
-        </Menu>
-      </Card>
-    </Box>
+      {menuItems.map((item) => (
+        <Tooltip key={item.path} title={item.label}>
+          <IconButton
+            component={NavLink}
+            to={item.path}
+            sx={{
+              color: (theme) => theme.palette.text.secondary,
+              "&.active": {
+                color: (theme) => theme.palette.primary.main,
+                backgroundColor: (theme) =>
+                  theme.palette.action.selected,
+              },
+            }}
+          >
+            {item.icon}
+          </IconButton>
+        </Tooltip>
+      ))}
+    </Card>
   );
 }
 

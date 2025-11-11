@@ -9,8 +9,8 @@ function Layout() {
   return (
     <Box
       sx={{
-        height: "calc(100dvh - 900px)",
-        minHeight: 600,
+        height: "100dvh",
+        minHeight: 300,
         position: "relative",
       }}
     >
@@ -21,7 +21,9 @@ function Layout() {
       >
         {isLoading && <LinearProgress />}
       </Box>
-      <Outlet />
+      <Box sx={{overflowY: "auto", height: "calc(100dvh - 83px)"}}>
+        <Outlet />
+      </Box>
       <NavMenu />
     </Box>
   );
