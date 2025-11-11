@@ -13,8 +13,8 @@ export interface MenuItem {
 
 export const menuItems: MenuItem[] = [
   {
-    label: "Home",
-    path: "/home",
+    label: "Dashboard",
+    path: "/dashboard",
     icon: <GridViewOutlinedIcon sx={{ fontSize: 32 }} />,
   },
   {

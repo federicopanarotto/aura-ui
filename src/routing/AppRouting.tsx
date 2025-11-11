@@ -18,7 +18,7 @@ function AppRouting() {
           <Route element={<Layout />}>
             <Route path="/*" element={<Navigate to="/" />} />
             <Route index path="/" element={<Navigate to="/home" />} />
-            <Route path="/home" element={<DashboardPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/diary" element={<DiaryPage />} />
             <Route path="/registration" element={<RegistrationPage />} />
             <Route path="/review" element={<ReviewPage />} />
