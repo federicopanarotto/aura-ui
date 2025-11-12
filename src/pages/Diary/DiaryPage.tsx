@@ -6,8 +6,12 @@ import RecordingItemCard from "./components/RecordingItemCard";
 function DiaryPage() {
   const { data: recordingList } = useRecordingList();
 
-  if (!recordingList) {
-    return <>Nessun dato trovato</>;
+  if (!recordingList || recordingList.length === 0) {
+    return (
+      <BasePage sx={{ p: 2 }}>
+        <Typography>Il diario è vuoto</Typography>
+      </BasePage>
+    );
   }
 
   return (
