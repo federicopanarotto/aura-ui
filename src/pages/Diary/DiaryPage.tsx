@@ -1,16 +1,10 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import BasePage from "../../shared/ui/page/BasePage";
 import useRecordingList from "../../shared/api/recording/useRecordingList";
-import { useNavigate } from "react-router";
+import RecordingItemCard from "./components/RecordingItemCard";
 
 function DiaryPage() {
-  const navigate = useNavigate();
-
   const { data: recordingList } = useRecordingList();
-
-  const handleNavigateDetail = (recordingId: string) => {
-    navigate(`/diary/${recordingId}`);
-  };
 
   if (!recordingList) {
     return <>Nessun dato trovato</>;
@@ -21,8 +15,7 @@ function DiaryPage() {
       <Typography variant="h3">Diary</Typography>
       {recordingList.map((recording) => (
         <Box>
-          <pre>{JSON.stringify(recording, null, 2)}</pre>
-          <Button onClick={() => handleNavigateDetail(recording.id)}>Dettagli</Button>
+          <RecordingItemCard recording={recording} />
         </Box>
       ))}
     </BasePage>
