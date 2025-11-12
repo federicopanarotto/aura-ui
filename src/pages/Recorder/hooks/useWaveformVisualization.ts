@@ -4,97 +4,128 @@ import { useTheme } from "@mui/material/styles";
 interface UseWaveformVisualizationProps {
   analyserRef: React.MutableRefObject<AnalyserNode | null>;
   isRecording: boolean;
+  barWidth?: number;
+  barGap?: number;
+  heightMultiplier?: number;
+  updateInterval?: number;
+  minBarHeight?: number;
+  smoothing?: number;
 }
 
 export const useWaveformVisualization = ({
   analyserRef,
   isRecording,
+  barWidth = 3,
+  barGap = 2,
+  heightMultiplier = 0.8,
+  updateInterval = 50,
+  minBarHeight = 2,
+  smoothing = 0.7,
 }: UseWaveformVisualizationProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const waveformDataRef = useRef<number[]>([]);
   const animationFrameRef = useRef<number | null>(null);
+  const lastUpdateTimeRef = useRef<number>(0);
+  const currentAudioValueRef = useRef<number>(0);
   const theme = useTheme();
 
   const drawWaveform = useCallback(() => {
     if (!canvasRef.current || !analyserRef.current) return;
 
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
     const analyser = analyserRef.current;
+    
+    // Riduci la risoluzione dell'analyser per performance migliori
+    analyser.fftSize = 256;
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
 
-    // Set canvas actual size
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    let width = canvas.offsetWidth;
+    let height = canvas.offsetHeight;
+    canvas.width = width;
+    canvas.height = height;
 
-    const barWidth = 3;
-    const barGap = 2;
     const totalBarWidth = barWidth + barGap;
-    const maxBars = Math.floor(canvas.width / totalBarWidth);
+    let maxBars = Math.floor(width / totalBarWidth);
 
-    const draw = () => {
+    // Colori pre-calcolati
+    const bgColor = theme.palette.background.default;
+    const lineColor = theme.palette.divider;
+    const barColor = theme.palette.primary.main;
+
+    const draw = (timestamp: number) => {
       animationFrameRef.current = requestAnimationFrame(draw);
 
-      // Get audio data
+      // Leggi dati audio
       analyser.getByteFrequencyData(dataArray);
 
-      // Calculate average amplitude
       let sum = 0;
       for (let i = 0; i < bufferLength; i++) {
         sum += dataArray[i];
       }
       const average = sum / bufferLength;
+      const normalizedHeight = (average / 255) * height * heightMultiplier;
 
-      // Normalize to canvas height
-      const normalizedHeight = (average / 255) * canvas.height * 0.8;
+      // Smooth
+      currentAudioValueRef.current = 
+        currentAudioValueRef.current * smoothing + normalizedHeight * (1 - smoothing);
 
-      // Add new data point
-      waveformDataRef.current.push(normalizedHeight);
+      // Aggiungi nuova barra
+      if (timestamp - lastUpdateTimeRef.current >= updateInterval) {
+        waveformDataRef.current.push(currentAudioValueRef.current);
 
-      // Keep only the visible bars
-      if (waveformDataRef.current.length > maxBars) {
-        waveformDataRef.current = waveformDataRef.current.slice(-maxBars);
+        if (waveformDataRef.current.length > maxBars) {
+          waveformDataRef.current.shift();
+        }
+
+        lastUpdateTimeRef.current = timestamp;
       }
 
-      // Clear canvas
-      ctx.fillStyle = theme.palette.background.default;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Clear
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, width, height);
 
-      // Draw center line
-      ctx.strokeStyle = "#333333";
+      // Center line
+      ctx.strokeStyle = lineColor;
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(0, canvas.height / 2);
-      ctx.lineTo(canvas.width, canvas.height / 2);
+      ctx.moveTo(0, height / 2);
+      ctx.lineTo(width, height / 2);
       ctx.stroke();
 
-      // Draw waveform bars
-      waveformDataRef.current.forEach((height, index) => {
-        const x =
-          canvas.width -
-          (waveformDataRef.current.length - index) * totalBarWidth;
-        const barHeight = Math.max(2, height);
+      // Draw bars - batch rendering
+      ctx.fillStyle = barColor;
+      
+      const dataLength = waveformDataRef.current.length;
+      for (let i = 0; i < dataLength; i++) {
+        const height_val = waveformDataRef.current[i];
+        const x = width - (dataLength - i) * totalBarWidth;
+        const barHeight = Math.max(minBarHeight, height_val);
 
-        ctx.fillStyle = theme.palette.primary.main;
-
-        // Top bar
+        // Top e bottom insieme
         ctx.fillRect(
           x,
-          canvas.height / 2 - barHeight / 2,
+          height / 2 - barHeight / 2,
           barWidth,
-          barHeight / 2
+          barHeight
         );
-
-        // Bottom bar
-        ctx.fillRect(x, canvas.height / 2, barWidth, barHeight / 2);
-      });
+      }
     };
 
-    draw();
-  }, [analyserRef, theme]);
+    draw(0);
+  }, [
+    analyserRef,
+    theme,
+    barWidth,
+    barGap,
+    heightMultiplier,
+    updateInterval,
+    minBarHeight,
+    smoothing,
+  ]);
 
   const stopVisualization = useCallback(() => {
     if (animationFrameRef.current) {
@@ -102,9 +133,10 @@ export const useWaveformVisualization = ({
       animationFrameRef.current = null;
     }
     waveformDataRef.current = [];
+    currentAudioValueRef.current = 0;
+    lastUpdateTimeRef.current = 0;
   }, []);
 
-  // Start/stop visualization based on recording state
   useEffect(() => {
     if (isRecording) {
       drawWaveform();

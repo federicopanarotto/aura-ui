@@ -7,6 +7,9 @@ const QUERY_KEYS = {
   USER: {
     ME: 'useMe',
   },
+  RECORDING: {
+    UPLOAD: 'useRecordingUpload'
+  }
 } as const;
 
 export default QUERY_KEYS;

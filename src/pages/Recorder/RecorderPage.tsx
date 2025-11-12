@@ -1,26 +1,15 @@
 import { type FC } from "react";
-import { Typography, Box } from "@mui/material";
+import { Box } from "@mui/material";
 import BasePage from "../../shared/ui/page/BasePage";
 import { useAudioRecorder } from "./hooks/useAudioRecorder";
 import { useWaveformVisualization } from "./hooks/useWaveformVisualization";
 import { RecordingTimer } from "./components/RecordingTimer";
 import { WaveformCanvas } from "./components/WaveformCanvas";
 import { RecordButton } from "./components/RecordButton";
-import { RecordingStatus } from "./components/RecordingStatus";
-import { AudioPlayback } from "./components/AudioPlayback";
-
-// Audio upload hook (move to separate file)
-const useAudioUpload = () => {
-  const uploadAudio = async (audioBlob: Blob): Promise<void> => {
-    console.log("Audio blob ready for upload:", audioBlob);
-    // Implement your upload logic here
-  };
-
-  return { uploadAudio };
-};
+import useUploadAudio from "./api/useUploadAudio";
 
 const RecorderPage: FC = () => {
-  const { uploadAudio } = useAudioUpload();
+  const { mutateAsync: uploadAudio } = useUploadAudio();
 
   const {
     isRecording,
@@ -36,6 +25,12 @@ const RecorderPage: FC = () => {
   const { canvasRef } = useWaveformVisualization({
     analyserRef,
     isRecording,
+    barGap: 5,
+    barWidth: 6,
+    minBarHeight: 4,
+    heightMultiplier: 1.2,
+    updateInterval: 30,
+    smoothing: 0.6
   });
 
   const handleToggleRecording = () => {
@@ -47,31 +42,34 @@ const RecorderPage: FC = () => {
   };
 
   return (
-    <BasePage sx={{ p: 2 }}>
-      <Typography variant="h3">Voice Recorder</Typography>
+    <BasePage
+      sx={{
+        p: 2,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {/* <Typography variant="h3">Voice Recorder</Typography> */}
 
       <Box sx={{ textAlign: "center" }}>
-        <RecordingTimer seconds={seconds} />
-
-        <WaveformCanvas 
-          canvasRef={canvasRef} 
+        <WaveformCanvas
+          canvasRef={canvasRef}
           sx={{ mb: 3, position: "relative" }}
         />
+        <RecordingTimer seconds={seconds} />
 
         <RecordButton
           isRecording={isRecording}
           onToggleRecording={handleToggleRecording}
         />
 
-        <RecordingStatus
-          isRecording={isRecording}
-          hasRecording={!!audioURL}
-        />
+        {/* <RecordingStatus isRecording={isRecording} hasRecording={!!audioURL} /> */}
 
-        <AudioPlayback 
+        {/* <AudioPlayback 
           audioURL={audioURL} 
           isRecording={isRecording} 
-        />
+        /> */}
       </Box>
     </BasePage>
   );

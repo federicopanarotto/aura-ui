@@ -18,6 +18,7 @@ export const RecordButton: FC<RecordButtonProps> = ({
       sx={{
         width: 72,
         height: 72,
+        borderRadius: "100%",
         backgroundColor: isRecording ? "#ff4444" : "#ff3b30",
         color: "#ffffff",
         transition: "all 0.2s ease",
