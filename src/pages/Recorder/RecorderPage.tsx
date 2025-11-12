@@ -1,40 +1,8 @@
 import { useState, useRef, useCallback, useEffect, type FC } from "react";
-import { Typography, Box, IconButton, Paper } from "@mui/material";
+import { Typography, Box, Button } from "@mui/material";
 import { FiberManualRecord, Stop } from "@mui/icons-material";
-import { styled } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import BasePage from "../../shared/ui/page/BasePage";
-
-const WaveformCanvas = styled('canvas')({
-  width: '100%',
-  height: '200px',
-  borderRadius: 8,
-  // backgroundColor: '#BA3131',
-});
-
-const Timer = styled(Typography)({
-  fontFamily: 'SF Mono, Monaco, monospace',
-  fontSize: '3rem',
-  fontWeight: 300,
-  color: '#ffffff',
-  marginBottom: 24,
-  fontVariantNumeric: 'tabular-nums',
-});
-
-const RecordButton = styled(IconButton)<{ isRecording?: boolean }>(({ isRecording }) => ({
-  width: 72,
-  height: 72,
-  backgroundColor: isRecording ? '#ff4444' : '#ff3b30',
-  color: '#ffffff',
-  marginTop: 24,
-  transition: 'all 0.2s ease',
-  '&:hover': {
-    backgroundColor: isRecording ? '#ff6666' : '#ff5555',
-    transform: 'scale(1.05)',
-  },
-  '& .MuiSvgIcon-root': {
-    fontSize: 40,
-  },
-}));
 
 // Types
 interface AudioUploadHook {
@@ -55,7 +23,7 @@ const RecorderPage: FC = () => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [seconds, setSeconds] = useState<number>(0);
   const [audioURL, setAudioURL] = useState<string | null>(null);
-  
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -65,14 +33,18 @@ const RecorderPage: FC = () => {
   const animationFrameRef = useRef<number | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const waveformDataRef = useRef<number[]>([]);
-  
+
   const { uploadAudio } = useAudioUpload();
+
+  const theme = useTheme();
 
   // Format time display
   const formatTime = (totalSeconds: number): string => {
     const minutes = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${minutes.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   // Draw progressive waveform
@@ -80,7 +52,7 @@ const RecorderPage: FC = () => {
     if (!canvasRef.current || !analyserRef.current) return;
 
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const analyser = analyserRef.current;
@@ -108,7 +80,7 @@ const RecorderPage: FC = () => {
         sum += dataArray[i];
       }
       const average = sum / bufferLength;
-      
+
       // Normalize to canvas height (with some headroom)
       const normalizedHeight = (average / 255) * canvas.height * 0.8;
 
@@ -121,11 +93,11 @@ const RecorderPage: FC = () => {
       }
 
       // Clear canvas
-      ctx.fillStyle = '#000000';
+      ctx.fillStyle = theme.palette.background.default;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Draw center line
-      // ctx.strokeStyle = '#333333';
+      ctx.strokeStyle = "#333333";
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, canvas.height / 2);
@@ -134,41 +106,38 @@ const RecorderPage: FC = () => {
 
       // Draw waveform bars
       const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#90caf9');
+      gradient.addColorStop(0, theme.palette.primary.main);
       // gradient.addColorStop(0.5, '#ff6b60');
       // gradient.addColorStop(1, '#ff3b30');
 
       waveformDataRef.current.forEach((height, index) => {
-        const x = canvas.width - (waveformDataRef.current.length - index) * totalBarWidth;
+        const x =
+          canvas.width -
+          (waveformDataRef.current.length - index) * totalBarWidth;
         const barHeight = Math.max(2, height);
-        
+
         // Draw mirrored bars (top and bottom)
-        ctx.fillStyle = gradient;
-        
+        ctx.fillStyle = theme.palette.primary.main;
+
         // Top bar
         ctx.fillRect(
-          x, 
-          canvas.height / 2 - barHeight / 2, 
-          barWidth, 
+          x,
+          canvas.height / 2 - barHeight / 2,
+          barWidth,
           barHeight / 2
         );
-        
+
         // Bottom bar
-        ctx.fillRect(
-          x, 
-          canvas.height / 2, 
-          barWidth, 
-          barHeight / 2
-        );
+        ctx.fillRect(x, canvas.height / 2, barWidth, barHeight / 2);
 
         // // Add glow effect for recent bars
         // if (index > waveformDataRef.current.length - 10) {
         //   ctx.shadowBlur = 10;
         //   // ctx.shadowColor = '#ff3b30';
         //   ctx.fillRect(
-        //     x, 
-        //     canvas.height / 2 - barHeight / 2, 
-        //     barWidth, 
+        //     x,
+        //     canvas.height / 2 - barHeight / 2,
+        //     barWidth,
         //     barHeight
         //   );
         //   ctx.shadowBlur = 0;
@@ -181,18 +150,20 @@ const RecorderPage: FC = () => {
 
   const startRecording = async (): Promise<void> => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
-        } 
+        },
       });
-      
+
       // Set up Web Audio API for visualization
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContextRef.current = new (window.AudioContext ||
+        (window as any).webkitAudioContext)();
       analyserRef.current = audioContextRef.current.createAnalyser();
-      sourceRef.current = audioContextRef.current.createMediaStreamSource(stream);
+      sourceRef.current =
+        audioContextRef.current.createMediaStreamSource(stream);
       sourceRef.current.connect(analyserRef.current);
       analyserRef.current.fftSize = 256; // Smaller for more responsive visualization
       analyserRef.current.smoothingTimeConstant = 0.3; // Less smoothing for more reactive display
@@ -209,7 +180,9 @@ const RecorderPage: FC = () => {
       };
 
       mediaRecorderRef.current.onstop = async (): Promise<void> => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: "audio/wav",
+        });
         const url = URL.createObjectURL(audioBlob);
         setAudioURL(url);
         await uploadAudio(audioBlob);
@@ -218,7 +191,7 @@ const RecorderPage: FC = () => {
       mediaRecorderRef.current.start();
       setIsRecording(true);
       setSeconds(0);
-      
+
       // Start timer
       timerIntervalRef.current = setInterval(() => {
         setSeconds((prev) => prev + 1);
@@ -227,7 +200,7 @@ const RecorderPage: FC = () => {
       // Start waveform visualization
       drawWaveform();
     } catch (error) {
-      console.error('Error accessing microphone:', error);
+      console.error("Error accessing microphone:", error);
     }
   };
 
@@ -235,22 +208,27 @@ const RecorderPage: FC = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      
+
       // Stop all tracks
-      mediaRecorderRef.current.stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
-      
+      mediaRecorderRef.current.stream
+        .getTracks()
+        .forEach((track: MediaStreamTrack) => track.stop());
+
       // Clear timer
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
       }
-      
+
       // Stop animation
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-      
+
       // Clean up audio context
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      if (
+        audioContextRef.current &&
+        audioContextRef.current.state !== "closed"
+      ) {
         audioContextRef.current.close();
       }
     }
@@ -265,81 +243,89 @@ const RecorderPage: FC = () => {
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
       }
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      if (
+        audioContextRef.current &&
+        audioContextRef.current.state !== "closed"
+      ) {
         audioContextRef.current.close();
       }
     };
   }, []);
 
   return (
-    <BasePage sx={{ 
-      p: 4,
-      backgroundColor: '#0a0a0a',
-      minHeight: '100vh',
-    }}>
-      <Box sx={{ textAlign: 'center', mb: 6 }}>
-        <Typography 
-          variant="h3" 
-          sx={{ 
-            fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, Helvetica Neue, Arial',
-            fontWeight: 600,
-            fontSize: '2.5rem',
-            color: '#ffffff',
-          }}
-        >
-          Voice Recorder
-        </Typography>
-      </Box>
+    <BasePage
+      sx={{
+        p: 2,
+      }}
+    >
+      <Typography variant="h3">Voice Recorder</Typography>
 
       <Box>
-        <Box sx={{ textAlign: 'center' }}>
+        <Box sx={{ textAlign: "center" }}>
           {/* Timer */}
-          <Timer>
-            {formatTime(seconds)}
-          </Timer>
+          <Typography>{formatTime(seconds)}</Typography>
 
           {/* Waveform Visualization */}
-          <Box sx={{ mb: 3, position: 'relative' }}>
-            <WaveformCanvas ref={canvasRef} />
+          <Box sx={{ mb: 3, position: "relative" }}>
+            <Box
+              component={"canvas"}
+              ref={canvasRef}
+              sx={{ width: "100%", height: "200px", borderRadius: 8 }}
+            />
           </Box>
 
           {/* Control Button */}
-          <RecordButton
+          <Button
             onClick={isRecording ? stopRecording : startRecording}
-            isRecording={isRecording}
+            sx={{
+              width: 72,
+              height: 72,
+              backgroundColor: isRecording ? "#ff4444" : "#ff3b30",
+              color: "#ffffff",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                backgroundColor: isRecording ? "#ff6666" : "#ff5555",
+                transform: "scale(1.05)",
+              },
+              "& .MuiSvgIcon-root": {
+                fontSize: 40,
+              },
+            }}
           >
             {isRecording ? <Stop /> : <FiberManualRecord />}
-          </RecordButton>
+          </Button>
 
           {/* Status Text */}
           <Typography
             sx={{
               mt: 2,
-              color: '#999999',
-              fontSize: '0.875rem',
+              color: "#999999",
+              fontSize: "0.875rem",
             }}
           >
-            {isRecording ? "Recording..." : audioURL ? "Recording complete" : "Tap to start"}
+            {isRecording
+              ? "Recording..."
+              : audioURL
+              ? "Recording complete"
+              : "Tap to start"}
           </Typography>
 
           {/* Audio Playback */}
           {audioURL && !isRecording && (
             <Box sx={{ mt: 4 }}>
-              <audio 
-                controls 
-                src={audioURL} 
-                style={{ 
-                  width: '100%',
+              <audio
+                controls
+                src={audioURL}
+                style={{
+                  width: "100%",
                   maxWidth: 400,
-                  filter: 'invert(1)',
-                }} 
+                  filter: "invert(1)",
+                }}
               />
             </Box>
           )}
         </Box>
-
       </Box>
-        
     </BasePage>
   );
 };
