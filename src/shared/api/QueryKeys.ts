@@ -8,7 +8,9 @@ const QUERY_KEYS = {
     ME: 'useMe',
   },
   RECORDING: {
-    UPLOAD: 'useRecordingUpload'
+    UPLOAD: 'useRecordingUpload',
+    LIST: 'useGetRecordingList',
+    DETAIL: 'useGetRecordingDetail'
   }
 } as const;
 

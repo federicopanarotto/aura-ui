@@ -1,16 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
-import QUERY_KEYS from "../../../shared/api/QueryKeys";
-import client from "../../../shared/api/Client";
+import QUERY_KEYS from "../QueryKeys";
+import client from "../Client";
 import toWav from 'audiobuffer-to-wav';
 
-const useUploadAudio = () => {
+const useCreateRecording = () => {
   const doUpload = async (audioBlob: Blob): Promise<void> => {
-    // Converti in AudioBuffer
     const arrayBuffer = await audioBlob.arrayBuffer();
     const audioContext = new AudioContext();
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
     
-    // Converti in WAV vero
     const wavArrayBuffer = toWav(audioBuffer);
     const wavBlob = new Blob([wavArrayBuffer], { type: 'audio/wav' });
     
@@ -34,4 +32,4 @@ const useUploadAudio = () => {
   });
 };
 
-export default useUploadAudio;
+export default useCreateRecording;

@@ -7,6 +7,7 @@ import DiaryPage from "../pages/Diary/DiaryPage";
 import ReviewPage from "../pages/Review/ReviewPage";
 import ProfilePage from "../pages/Profile/ProfilePage";
 import RecorderPage from "../pages/Recorder/RecorderPage";
+import DiaryDetailPage from "../pages/Diary/DiaryDetailPage";
 
 function AppRouting() {
   return (
@@ -20,6 +21,7 @@ function AppRouting() {
             <Route index path="/" element={<Navigate to="/dashboard" />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/diary" element={<DiaryPage />} />
+            <Route path="/diary/:recordingId" element={<DiaryDetailPage />} />
             <Route path="/recorder" element={<RecorderPage />} />
             <Route path="/review" element={<ReviewPage />} />
             <Route path="/profile" element={<ProfilePage />} />

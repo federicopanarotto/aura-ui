@@ -3,7 +3,7 @@ import type { Review } from "../review/Review";
 import type { User } from "../user/User";
 
 export type Recording = {
-  id?: string;
+  id: string;
   filePath: string;
   fileName: string;
   originalFileName: string;
@@ -12,6 +12,6 @@ export type Recording = {
   notes: Note[];
   review: Review;
   createdBy: User;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }

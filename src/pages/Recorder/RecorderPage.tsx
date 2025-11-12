@@ -6,15 +6,14 @@ import { useWaveformVisualization } from "./hooks/useWaveformVisualization";
 import { RecordingTimer } from "./components/RecordingTimer";
 import { WaveformCanvas } from "./components/WaveformCanvas";
 import { RecordButton } from "./components/RecordButton";
-import useUploadAudio from "./api/useUploadAudio";
+import useCreateRecording from "../../shared/api/recording/useCreateRecording";
 
 const RecorderPage: FC = () => {
-  const { mutateAsync: uploadAudio } = useUploadAudio();
+  const { mutateAsync: uploadAudio } = useCreateRecording();
 
   const {
     isRecording,
     seconds,
-    audioURL,
     startRecording,
     stopRecording,
     analyserRef,
