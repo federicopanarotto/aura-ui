@@ -62,10 +62,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
     if (!isMeLoading) {
       setIsLoading(false);
     }
-
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
   }, [isSuccess, error, isMeLoading, me]);
 
   return (

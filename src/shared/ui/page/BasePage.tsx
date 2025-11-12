@@ -1,11 +1,10 @@
-import { Box, type SxProps, type Theme } from "@mui/material";
+import { Box, type BoxProps } from "@mui/material";
 import { useEffect, type ReactNode } from "react";
 import { useLoadingStorage } from "../../../storage/loadingStorage";
 
-interface BasePageProps {
+interface BasePageProps extends BoxProps {
   children?: ReactNode;
   isLoading?: boolean;
-  sx?: SxProps<Theme>;
 }
 
 function BasePage({ children, isLoading = false, sx }: BasePageProps) {
