@@ -1,330 +1,77 @@
-import { useState, useRef, useCallback, useEffect, type FC } from "react";
-import { Typography, Box, Button } from "@mui/material";
-import { FiberManualRecord, Stop } from "@mui/icons-material";
-import { useTheme } from "@mui/material/styles";
+import { type FC } from "react";
+import { Typography, Box } from "@mui/material";
 import BasePage from "../../shared/ui/page/BasePage";
+import { useAudioRecorder } from "./hooks/useAudioRecorder";
+import { useWaveformVisualization } from "./hooks/useWaveformVisualization";
+import { RecordingTimer } from "./components/RecordingTimer";
+import { WaveformCanvas } from "./components/WaveformCanvas";
+import { RecordButton } from "./components/RecordButton";
+import { RecordingStatus } from "./components/RecordingStatus";
+import { AudioPlayback } from "./components/AudioPlayback";
 
-// Types
-interface AudioUploadHook {
-  uploadAudio: (audioBlob: Blob) => Promise<void>;
-}
-
-// Audio upload hook
-const useAudioUpload = (): AudioUploadHook => {
-  const uploadAudio = useCallback(async (audioBlob: Blob): Promise<void> => {
+// Audio upload hook (move to separate file)
+const useAudioUpload = () => {
+  const uploadAudio = async (audioBlob: Blob): Promise<void> => {
     console.log("Audio blob ready for upload:", audioBlob);
     // Implement your upload logic here
-  }, []);
+  };
 
   return { uploadAudio };
 };
 
 const RecorderPage: FC = () => {
-  const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [seconds, setSeconds] = useState<number>(0);
-  const [audioURL, setAudioURL] = useState<string | null>(null);
-
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
-  const timerIntervalRef = useRef<number | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const waveformDataRef = useRef<number[]>([]);
-
   const { uploadAudio } = useAudioUpload();
 
-  const theme = useTheme();
+  const {
+    isRecording,
+    seconds,
+    audioURL,
+    startRecording,
+    stopRecording,
+    analyserRef,
+  } = useAudioRecorder({
+    onRecordingComplete: uploadAudio,
+  });
 
-  // Format time display
-  const formatTime = (totalSeconds: number): string => {
-    const minutes = Math.floor(totalSeconds / 60);
-    const secs = totalSeconds % 60;
-    return `${minutes.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  };
+  const { canvasRef } = useWaveformVisualization({
+    analyserRef,
+    isRecording,
+  });
 
-  // Draw progressive waveform
-  const drawWaveform = useCallback(() => {
-    if (!canvasRef.current || !analyserRef.current) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const analyser = analyserRef.current;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-
-    // Set canvas actual size
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-
-    const barWidth = 3;
-    const barGap = 2;
-    const totalBarWidth = barWidth + barGap;
-    const maxBars = Math.floor(canvas.width / totalBarWidth);
-
-    const draw = () => {
-      animationFrameRef.current = requestAnimationFrame(draw);
-
-      // Get audio data
-      analyser.getByteFrequencyData(dataArray);
-
-      // Calculate average amplitude
-      let sum = 0;
-      for (let i = 0; i < bufferLength; i++) {
-        sum += dataArray[i];
-      }
-      const average = sum / bufferLength;
-
-      // Normalize to canvas height (with some headroom)
-      const normalizedHeight = (average / 255) * canvas.height * 0.8;
-
-      // Add new data point
-      waveformDataRef.current.push(normalizedHeight);
-
-      // Keep only the visible bars
-      if (waveformDataRef.current.length > maxBars) {
-        waveformDataRef.current = waveformDataRef.current.slice(-maxBars);
-      }
-
-      // Clear canvas
-      ctx.fillStyle = theme.palette.background.default;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Draw center line
-      ctx.strokeStyle = "#333333";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, canvas.height / 2);
-      ctx.lineTo(canvas.width, canvas.height / 2);
-      ctx.stroke();
-
-      // Draw waveform bars
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, theme.palette.primary.main);
-      // gradient.addColorStop(0.5, '#ff6b60');
-      // gradient.addColorStop(1, '#ff3b30');
-
-      waveformDataRef.current.forEach((height, index) => {
-        const x =
-          canvas.width -
-          (waveformDataRef.current.length - index) * totalBarWidth;
-        const barHeight = Math.max(2, height);
-
-        // Draw mirrored bars (top and bottom)
-        ctx.fillStyle = theme.palette.primary.main;
-
-        // Top bar
-        ctx.fillRect(
-          x,
-          canvas.height / 2 - barHeight / 2,
-          barWidth,
-          barHeight / 2
-        );
-
-        // Bottom bar
-        ctx.fillRect(x, canvas.height / 2, barWidth, barHeight / 2);
-
-        // // Add glow effect for recent bars
-        // if (index > waveformDataRef.current.length - 10) {
-        //   ctx.shadowBlur = 10;
-        //   // ctx.shadowColor = '#ff3b30';
-        //   ctx.fillRect(
-        //     x,
-        //     canvas.height / 2 - barHeight / 2,
-        //     barWidth,
-        //     barHeight
-        //   );
-        //   ctx.shadowBlur = 0;
-        // }
-      });
-    };
-
-    draw();
-  }, []);
-
-  const startRecording = async (): Promise<void> => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        },
-      });
-
-      // Set up Web Audio API for visualization
-      audioContextRef.current = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
-      analyserRef.current = audioContextRef.current.createAnalyser();
-      sourceRef.current =
-        audioContextRef.current.createMediaStreamSource(stream);
-      sourceRef.current.connect(analyserRef.current);
-      analyserRef.current.fftSize = 256; // Smaller for more responsive visualization
-      analyserRef.current.smoothingTimeConstant = 0.3; // Less smoothing for more reactive display
-
-      // Set up MediaRecorder
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      audioChunksRef.current = [];
-      waveformDataRef.current = [];
-
-      mediaRecorderRef.current.ondataavailable = (event: BlobEvent): void => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorderRef.current.onstop = async (): Promise<void> => {
-        const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/wav",
-        });
-        const url = URL.createObjectURL(audioBlob);
-        setAudioURL(url);
-        await uploadAudio(audioBlob);
-      };
-
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
-      setSeconds(0);
-
-      // Start timer
-      timerIntervalRef.current = setInterval(() => {
-        setSeconds((prev) => prev + 1);
-      }, 1000);
-
-      // Start waveform visualization
-      drawWaveform();
-    } catch (error) {
-      console.error("Error accessing microphone:", error);
+  const handleToggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
     }
   };
-
-  const stopRecording = (): void => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-
-      // Stop all tracks
-      mediaRecorderRef.current.stream
-        .getTracks()
-        .forEach((track: MediaStreamTrack) => track.stop());
-
-      // Clear timer
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-      }
-
-      // Stop animation
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-
-      // Clean up audio context
-      if (
-        audioContextRef.current &&
-        audioContextRef.current.state !== "closed"
-      ) {
-        audioContextRef.current.close();
-      }
-    }
-  };
-
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-      }
-      if (
-        audioContextRef.current &&
-        audioContextRef.current.state !== "closed"
-      ) {
-        audioContextRef.current.close();
-      }
-    };
-  }, []);
 
   return (
-    <BasePage
-      sx={{
-        p: 2,
-      }}
-    >
+    <BasePage sx={{ p: 2 }}>
       <Typography variant="h3">Voice Recorder</Typography>
 
-      <Box>
-        <Box sx={{ textAlign: "center" }}>
-          {/* Timer */}
-          <Typography>{formatTime(seconds)}</Typography>
+      <Box sx={{ textAlign: "center" }}>
+        <RecordingTimer seconds={seconds} />
 
-          {/* Waveform Visualization */}
-          <Box sx={{ mb: 3, position: "relative" }}>
-            <Box
-              component={"canvas"}
-              ref={canvasRef}
-              sx={{ width: "100%", height: "200px", borderRadius: 8 }}
-            />
-          </Box>
+        <WaveformCanvas 
+          canvasRef={canvasRef} 
+          sx={{ mb: 3, position: "relative" }}
+        />
 
-          {/* Control Button */}
-          <Button
-            onClick={isRecording ? stopRecording : startRecording}
-            sx={{
-              width: 72,
-              height: 72,
-              backgroundColor: isRecording ? "#ff4444" : "#ff3b30",
-              color: "#ffffff",
-              transition: "all 0.2s ease",
-              "&:hover": {
-                backgroundColor: isRecording ? "#ff6666" : "#ff5555",
-                transform: "scale(1.05)",
-              },
-              "& .MuiSvgIcon-root": {
-                fontSize: 40,
-              },
-            }}
-          >
-            {isRecording ? <Stop /> : <FiberManualRecord />}
-          </Button>
+        <RecordButton
+          isRecording={isRecording}
+          onToggleRecording={handleToggleRecording}
+        />
 
-          {/* Status Text */}
-          <Typography
-            sx={{
-              mt: 2,
-              color: "#999999",
-              fontSize: "0.875rem",
-            }}
-          >
-            {isRecording
-              ? "Recording..."
-              : audioURL
-              ? "Recording complete"
-              : "Tap to start"}
-          </Typography>
+        <RecordingStatus
+          isRecording={isRecording}
+          hasRecording={!!audioURL}
+        />
 
-          {/* Audio Playback */}
-          {audioURL && !isRecording && (
-            <Box sx={{ mt: 4 }}>
-              <audio
-                controls
-                src={audioURL}
-                style={{
-                  width: "100%",
-                  maxWidth: 400,
-                  filter: "invert(1)",
-                }}
-              />
-            </Box>
-          )}
-        </Box>
+        <AudioPlayback 
+          audioURL={audioURL} 
+          isRecording={isRecording} 
+        />
       </Box>
     </BasePage>
   );
