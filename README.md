@@ -1,73 +1,74 @@
-# React + TypeScript + Vite
+# Aura UI - Roadmap di sviluppo
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Questa roadmap tiene traccia delle feature da implementare per l'app Aura UI, suddivise per pagina.  
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Dashboard
+La schermata principale dell'app. Mostra informazioni rapide all'utente e motivazione quotidiana.
 
-## React Compiler
+- [ ] Visualizzazione del nome dell'utente
+- [ ] Visualizzazione del giorno corrente
+- [ ] Conteggio dei vocali registrati nella giornata
+- [ ] Frase motivazionale del giorno
+- [ ] Suggerimenti aggiuntivi per il dashboard (opzionale)
+  - [ ] Grafico rapido dei vocali registrati nell'ultima settimana
+  - [ ] Stato emotivo generale dell'utente (basato sulle analisi)
+  - [ ] Shortcut per registrazione veloce
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Diary
+Elenco delle registrazioni dell'utente suddivise per giorno.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- [ ] Visualizzazione lista delle registrazioni
+- [ ] Visualizzazione calendario
+- [ ] Toggle per passare da lista a calendario
+- [ ] Colorazione dei giorni in base a:
+  - [ ] Numero di registrazioni
+  - [ ] Mood rilevato
+- [ ] Click sul giorno per vedere il dettaglio delle registrazioni
+- [ ] Filtri opzionali:
+  - [ ] Mood
+  - [ ] Tag o categoria
+  - [ ] Ricerca per testo trascritto
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Record
+Pagina di registrazione vocale con waveform in tempo reale.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- [x] Visualizzazione waveform durante la registrazione
+- [x] Pulsante start/stop registrazione
+- [ ] Stop parziale e ripresa della registrazione
+- [ ] Timer registrazione
+- [ ] Salvataggio automatico dopo stop
+- [ ] Eventuale trascrizione in tempo reale (futura feature)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Review
+Dashboard di analisi dei vocali e stato emotivo dell'utente.
+
+- [ ] Analisi settimanale dei vocali
+- [ ] Visualizzazione grafica dello stato emotivo rilevato
+- [ ] Statistiche generali:
+  - [ ] Numero di registrazioni totali
+  - [ ] Mood predominante della settimana
+  - [ ] Eventuali pattern nel tempo
+- [ ] Possibilità di esportare i dati (opzionale)
+
+
+## Profile
+Pagina di gestione account.
+
+- [ ] Visualizzazione dati profilo
+- [ ] Cambio password
+- [ ] Pulsante logout
+- [ ] Modifica dati profilo (opzionale)
+- [ ] Preferenze notifiche (opzionale)
+
+<br>
+
+---
+<br>
+
+> Nota: Alcune feature sono opzionali e possono essere aggiunte in versioni future.  
+> Il focus principale per la prima release dovrebbe essere: Record, Diary e Dashboard base.
