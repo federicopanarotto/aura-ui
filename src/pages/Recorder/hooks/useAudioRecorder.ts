@@ -6,9 +6,9 @@ interface UseAudioRecorderReturn {
   audioURL: string | null;
   startRecording: () => Promise<void>;
   stopRecording: () => void;
-  mediaRecorderRef: React.MutableRefObject<MediaRecorder | null>;
-  audioContextRef: React.MutableRefObject<AudioContext | null>;
-  analyserRef: React.MutableRefObject<AnalyserNode | null>;
+  mediaRecorderRef: React.RefObject<MediaRecorder | null>;
+  audioContextRef: React.RefObject<AudioContext | null>;
+  analyserRef: React.RefObject<AnalyserNode | null>;
 }
 
 interface UseAudioRecorderProps {
