@@ -16,3 +16,4 @@ jobs:
       deploy-path: ${{ vars.DEPLOY_PATH }}
 
     secrets: inherit
+    
