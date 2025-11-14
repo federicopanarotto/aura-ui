@@ -1,0 +1,11 @@
+services:
+  aura-ui:
+    image: aura-ui:latest
+    container_name: aura-ui
+    restart: unless-stopped
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true 

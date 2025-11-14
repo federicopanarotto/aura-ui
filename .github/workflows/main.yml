@@ -1,0 +1,18 @@
+name: Deploy aura-ui frontend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  frontend-deploy:
+    uses: federicopanarotto/actions-templates/.github/workflows/swagberry-frontend-deploy.yml@main
+
+    with:
+      image-name: 'aura-ui'
+      docker-compose-service-name: 'aura-ui'
+      deploy-path: ${{ vars.DEPLOY_PATH }}
+
+    secrets: inherit
